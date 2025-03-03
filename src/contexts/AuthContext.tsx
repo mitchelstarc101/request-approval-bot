@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "@/services/api";
+import { toast } from "@/components/ui/use-toast";
 
 interface User {
   id: string;
@@ -35,12 +36,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (credentials: any) => {
-    const response = await authService.login(credentials);
-    setUser(response.user);
+    try {
+      const response = await authService.login(credentials);
+      setUser(response.user);
+    } catch (error) {
+      console.error("Login error:", error);
+      toast({
+        title: "Login failed",
+        description: (error as Error).message || "Please check your credentials and try again.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const signup = async (userData: any) => {
-    await authService.signup(userData);
+    try {
+      await authService.signup(userData);
+    } catch (error) {
+      console.error("Signup error:", error);
+      toast({
+        title: "Signup failed",
+        description: (error as Error).message || "Please try again with different information.",
+        variant: "destructive",
+      });
+      throw error;
+    }
   };
 
   const logout = () => {

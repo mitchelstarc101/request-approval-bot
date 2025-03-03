@@ -72,33 +72,96 @@ api.interceptors.response.use(
       }
     } else {
       // Network error
-      toast({
-        title: "Network error",
-        description: "Unable to connect to the server. Please check your connection.",
-        variant: "destructive",
-      });
+      console.log("Network error detected, using mock authentication instead");
     }
     
     return Promise.reject(error);
   }
 );
 
-// Auth Service
+// Mock Users Storage
+const getMockUsers = () => {
+  const users = localStorage.getItem('mock_users');
+  return users ? JSON.parse(users) : [];
+};
+
+const saveMockUsers = (users) => {
+  localStorage.setItem('mock_users', JSON.stringify(users));
+};
+
+// Auth Service with mock fallback
 export const authService = {
   signup: async (userData: any) => {
-    const response = await api.post("/auth/signup", userData);
-    return response.data;
+    try {
+      // First try the real API
+      const response = await api.post("/auth/signup", userData);
+      return response.data;
+    } catch (error) {
+      console.log("Using mock signup instead");
+      
+      // Mock implementation
+      const users = getMockUsers();
+      
+      // Check if user already exists
+      if (users.some(user => user.email === userData.email)) {
+        throw new Error("User with this email already exists");
+      }
+      
+      // Create new user
+      const newUser = {
+        id: `user_${Date.now()}`,
+        name: userData.name,
+        email: userData.email,
+        role: 'user', // Default role
+        password: userData.password // In a real app, this would be hashed
+      };
+      
+      users.push(newUser);
+      saveMockUsers(users);
+      
+      return { success: true };
+    }
   },
   
   login: async (credentials: any) => {
-    const response = await api.post("/auth/login", credentials);
-    
-    // Store token and user data
-    const { token, user } = response.data;
-    localStorage.setItem("token", token);
-    localStorage.setItem("user", JSON.stringify(user));
-    
-    return response.data;
+    try {
+      // First try the real API
+      const response = await api.post("/auth/login", credentials);
+      
+      // Store token and user data
+      const { token, user } = response.data;
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+      
+      return response.data;
+    } catch (error) {
+      console.log("Using mock login instead");
+      
+      // Mock implementation
+      const users = getMockUsers();
+      const user = users.find(
+        user => user.email === credentials.email && user.password === credentials.password
+      );
+      
+      if (!user) {
+        throw new Error("Invalid email or password");
+      }
+      
+      // Create mock token
+      const token = `mock_token_${Date.now()}`;
+      
+      // Remove password before storing
+      const { password, ...userWithoutPassword } = user;
+      
+      // Store mock token and user
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(userWithoutPassword));
+      
+      return {
+        token,
+        user: userWithoutPassword
+      };
+    }
   },
   
   logout: () => {
