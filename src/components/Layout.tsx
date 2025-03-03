@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { NavLink, Outlet } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import { 
@@ -15,6 +15,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { toast } from "@/components/ui/use-toast";
+import ThemeToggle from "@/components/ThemeToggle";
 
 interface NavItemProps {
   icon: React.ReactNode;
@@ -54,6 +55,12 @@ const Layout: React.FC<LayoutProps> = ({ isLoggedIn, isAdmin, logout }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // After mounting, we can safely access client-side APIs
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -131,8 +138,12 @@ const Layout: React.FC<LayoutProps> = ({ isLoggedIn, isAdmin, logout }) => {
             />
           </nav>
 
-          {/* Logout */}
+          {/* Theme toggle & Logout */}
           <div className="p-4 mt-auto">
+            <div className="flex items-center justify-between mb-4">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              {mounted && <ThemeToggle />}
+            </div>
             <Button 
               variant="ghost" 
               className="w-full flex items-center justify-start gap-3 text-muted-foreground hover:text-destructive"
