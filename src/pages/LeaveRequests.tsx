@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from "react";
-import { leaveRequestService } from "@/services/api";
+import { leaveRequestService } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
 import LeaveRequestCard from "@/components/LeaveRequestCard";
 import { Button } from "@/components/ui/button";

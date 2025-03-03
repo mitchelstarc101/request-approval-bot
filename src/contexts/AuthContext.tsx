@@ -1,6 +1,6 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { authService } from "@/services/api";
+import { authService } from "@/services";
 import { toast } from "@/components/ui/use-toast";
 
 interface User {

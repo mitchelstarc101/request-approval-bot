@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { leaveRequestService } from "@/services/api";
+import { leaveRequestService } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
 import StatsCard from "@/components/StatsCard";
 import LeaveRequestCard from "@/components/LeaveRequestCard";
