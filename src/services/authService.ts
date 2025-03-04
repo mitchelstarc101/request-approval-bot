@@ -106,11 +106,21 @@ export const authService = {
       const users = getMockUsers();
       const user = users.find(user => user.email === email);
       
+      // In a real app, you would:
+      // 1. Generate a secure token/link
+      // 2. Store it with an expiration time
+      // 3. Send an email with the reset link to the user
+      console.log(`[MOCK MODE] In a real environment, a password reset email would be sent to: ${email}`);
+      
+      if (user) {
+        console.log(`[MOCK MODE] User found: ${user.name}. In a real app, this user would receive a password reset link.`);
+      } else {
+        console.log(`[MOCK MODE] No user found with email: ${email}. In a real app, you still wouldn't reveal this for security reasons.`);
+      }
+      
       // For security, don't reveal whether a user exists or not
       // Just simulate success regardless
-      
-      // In a real app, this would send an email with a reset link/token
-      return { success: true };
+      return { success: true, mockEmailSent: true };
     }
   },
   

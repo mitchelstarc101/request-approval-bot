@@ -27,13 +27,21 @@ const ForgotPasswordForm = ({ onBackToLogin }: { onBackToLogin: () => void }) =>
     
     try {
       setIsLoading(true);
-      await authService.resetPassword(email);
+      const result = await authService.resetPassword(email);
       setIsSubmitted(true);
       
-      toast({
-        title: "Password reset email sent",
-        description: "If an account exists with this email, you will receive reset instructions.",
-      });
+      // Check if we're in mock mode
+      if (result.mockEmailSent) {
+        toast({
+          title: "Demo Mode: Password Reset",
+          description: "In a real environment, a password reset email would be sent to your address. For this demo, consider it done!",
+        });
+      } else {
+        toast({
+          title: "Password reset email sent",
+          description: "If an account exists with this email, you will receive reset instructions.",
+        });
+      }
     } catch (error) {
       console.error(error);
       toast({
@@ -100,12 +108,19 @@ const ForgotPasswordForm = ({ onBackToLogin }: { onBackToLogin: () => void }) =>
               </Button>
             </form>
           ) : (
-            <Button 
-              onClick={onBackToLogin}
-              className="w-full h-11 text-base font-medium"
-            >
-              Back to login
-            </Button>
+            <>
+              <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
+                <p className="text-green-800 dark:text-green-200 text-sm">
+                  <span className="font-medium">Demo mode:</span> In a real application, a password reset link would be sent to {email}. For this demo, you can simply return to the login page.
+                </p>
+              </div>
+              <Button 
+                onClick={onBackToLogin}
+                className="w-full h-11 text-base font-medium"
+              >
+                Back to login
+              </Button>
+            </>
           )}
         </div>
       </div>
