@@ -96,7 +96,7 @@ const ForgotPasswordForm = ({ onBackToLogin }: { onBackToLogin: () => void }) =>
                 className="w-full h-11 text-base font-medium"
                 disabled={isLoading}
               >
-                {isLoading ? "Sending instructions..." : "Send instructions"}
+                {isLoading ? "Submitting..." : "Submit"}
               </Button>
             </form>
           ) : (
