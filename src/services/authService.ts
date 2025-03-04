@@ -94,6 +94,26 @@ export const authService = {
     }
   },
   
+  resetPassword: async (email: string) => {
+    try {
+      // First try the real API
+      const response = await api.post("/auth/reset-password", { email });
+      return response.data;
+    } catch (error) {
+      console.log("Using mock password reset instead");
+      
+      // Mock implementation
+      const users = getMockUsers();
+      const user = users.find(user => user.email === email);
+      
+      // For security, don't reveal whether a user exists or not
+      // Just simulate success regardless
+      
+      // In a real app, this would send an email with a reset link/token
+      return { success: true };
+    }
+  },
+  
   logout: () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");

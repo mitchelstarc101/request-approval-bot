@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Calendar } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+import ForgotPasswordForm from "@/components/ForgotPasswordForm";
 
 interface AuthFormProps {
   isLogin: boolean;
@@ -19,6 +20,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onSubmit }) => {
     password: "",
   });
   const [isLoading, setIsLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +54,10 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onSubmit }) => {
       setIsLoading(false);
     }
   };
+
+  if (showForgotPassword && isLogin) {
+    return <ForgotPasswordForm onBackToLogin={() => setShowForgotPassword(false)} />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 bg-secondary/50">
@@ -117,6 +123,15 @@ const AuthForm: React.FC<AuthFormProps> = ({ isLogin, onSubmit }) => {
                 onChange={handleChange}
                 className="h-11"
               />
+              {isLogin && (
+                <button
+                  type="button"
+                  onClick={() => setShowForgotPassword(true)}
+                  className="text-sm text-primary hover:underline mt-1 block"
+                >
+                  Forgot password?
+                </button>
+              )}
             </div>
             
             <Button 
