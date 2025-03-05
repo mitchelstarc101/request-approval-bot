@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { authService } from "@/services";
 import { toast } from "@/components/ui/use-toast";
+import { initializeMockData } from "@/services/mockStorage";
 
 interface User {
   id: string;
@@ -27,6 +28,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
+    // Initialize mock data
+    initializeMockData();
+    
     // Check if user is logged in on initial load
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
@@ -37,7 +41,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (credentials: any) => {
     try {
+      console.log("AuthContext: Attempting login with:", credentials.email);
       const response = await authService.login(credentials);
+      console.log("AuthContext: Login successful, user:", response.user);
       setUser(response.user);
     } catch (error) {
       console.error("Login error:", error);

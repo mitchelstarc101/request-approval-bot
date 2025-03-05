@@ -1,6 +1,6 @@
 
 import api from "./apiClient";
-import { getMockUsers, saveMockUsers } from "./mockStorage";
+import { getMockUsers, saveMockUsers, initializeMockData } from "./mockStorage";
 
 export interface User {
   id: string;
@@ -19,6 +19,9 @@ export interface UserData {
   email: string;
   password: string;
 }
+
+// Initialize mock data when this module is imported
+initializeMockData();
 
 export const authService = {
   signup: async (userData: UserData) => {
