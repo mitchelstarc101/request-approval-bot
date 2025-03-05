@@ -72,13 +72,19 @@ export const authService = {
       
       // Mock implementation
       const users = getMockUsers();
+      console.log("Available mock users:", users);
+      console.log("Attempting to login with:", credentials);
+      
       const user = users.find(
         user => user.email === credentials.email && user.password === credentials.password
       );
       
       if (!user) {
+        console.error("No matching user found in mock data");
         throw new Error("Invalid email or password");
       }
+      
+      console.log("Mock login successful for user:", user);
       
       // Create mock token
       const token = `mock_token_${Date.now()}`;

@@ -1,4 +1,3 @@
-
 // Mock Users Storage
 export const getMockUsers = () => {
   const users = localStorage.getItem('mock_users');
@@ -21,8 +20,13 @@ export const saveMockLeaveRequests = (requests: any[]) => {
 
 // Initialize mock data if not present
 export const initializeMockData = () => {
+  console.log("Initializing mock data");
+  // Always clear existing mock data first for debugging
+  localStorage.removeItem('mock_users');
+  
   // Check if mock users exist
   if (!localStorage.getItem('mock_users')) {
+    console.log("Creating initial mock users");
     const initialUsers = [
       {
         id: 'user_admin',
@@ -41,6 +45,7 @@ export const initializeMockData = () => {
     ];
     
     saveMockUsers(initialUsers);
+    console.log("Mock users created:", initialUsers);
   }
   
   // Check if mock leave requests exist
@@ -99,3 +104,6 @@ export const initializeMockData = () => {
     saveMockLeaveRequests(initialRequests);
   }
 };
+
+// Force initialize mock data immediately
+initializeMockData();
