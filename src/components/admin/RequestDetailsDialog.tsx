@@ -45,6 +45,10 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
     mutationFn: (id: string) => leaveRequestService.approve(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminLeaveRequests"] });
+      // Also invalidate the reports and audit logs queries
+      queryClient.invalidateQueries({ queryKey: ["leaveReport"] });
+      queryClient.invalidateQueries({ queryKey: ["auditLogs"] });
+      
       toast({
         title: "Request Approved",
         description: "The leave request has been approved successfully",
@@ -65,6 +69,10 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
     mutationFn: (id: string) => leaveRequestService.reject(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminLeaveRequests"] });
+      // Also invalidate the reports and audit logs queries
+      queryClient.invalidateQueries({ queryKey: ["leaveReport"] });
+      queryClient.invalidateQueries({ queryKey: ["auditLogs"] });
+      
       toast({
         title: "Request Rejected",
         description: "The leave request has been rejected",
@@ -86,6 +94,9 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
       leaveRequestService.addComment(leaveId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminLeaveRequests"] });
+      // Also invalidate the audit logs query
+      queryClient.invalidateQueries({ queryKey: ["auditLogs"] });
+      
       setCommentText("");
       toast({
         title: "Comment Added",

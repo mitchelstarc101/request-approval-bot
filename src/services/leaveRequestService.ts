@@ -1,6 +1,7 @@
 import api from "./apiClient";
 import { getMockLeaveRequests, saveMockLeaveRequests } from "./mockStorage";
 import { authService } from "./authService";
+import { addAuditLog } from "./reportingService";
 
 export interface LeaveRequest {
   id: string; // Changed from optional to required
@@ -58,6 +59,16 @@ export const leaveRequestService = {
       
       requests.push(newRequest);
       saveMockLeaveRequests(requests);
+      
+      // Add audit log
+      addAuditLog(
+        'create',
+        newRequest.id,
+        'leave_request',
+        currentUser.id,
+        currentUser.name,
+        `Created ${leaveData.leave_type} leave request from ${new Date(leaveData.start_date).toLocaleDateString()} to ${new Date(leaveData.end_date).toLocaleDateString()}`
+      );
       
       return newRequest;
     }
@@ -149,6 +160,16 @@ export const leaveRequestService = {
       requests[requestIndex] = updatedRequest;
       saveMockLeaveRequests(requests);
       
+      // Add audit log
+      addAuditLog(
+        'modify',
+        id,
+        'leave_request',
+        currentUser.id,
+        currentUser.name,
+        `Updated ${leaveData.leave_type} leave request from ${new Date(leaveData.start_date).toLocaleDateString()} to ${new Date(leaveData.end_date).toLocaleDateString()}`
+      );
+      
       return updatedRequest;
     }
   },
@@ -181,6 +202,16 @@ export const leaveRequestService = {
       
       saveMockLeaveRequests(requests);
       
+      // Add audit log
+      addAuditLog(
+        'approve',
+        id,
+        'leave_request',
+        currentUser.id,
+        currentUser.name,
+        `Approved leave request for ${requests[requestIndex].user_name}`
+      );
+      
       return requests[requestIndex];
     }
   },
@@ -212,6 +243,16 @@ export const leaveRequestService = {
       requests[requestIndex].updated_at = new Date().toISOString();
       
       saveMockLeaveRequests(requests);
+      
+      // Add audit log
+      addAuditLog(
+        'reject',
+        id,
+        'leave_request',
+        currentUser.id,
+        currentUser.name,
+        `Rejected leave request for ${requests[requestIndex].user_name}`
+      );
       
       return requests[requestIndex];
     }
@@ -252,8 +293,19 @@ export const leaveRequestService = {
       }
       
       // Delete request
+      const deletedRequest = requests[requestIndex];
       requests.splice(requestIndex, 1);
       saveMockLeaveRequests(requests);
+      
+      // Add audit log
+      addAuditLog(
+        'delete',
+        id,
+        'leave_request',
+        currentUser.id,
+        currentUser.name,
+        `Deleted ${deletedRequest.leave_type} leave request for ${deletedRequest.user_name}`
+      );
       
       return { success: true };
     }
@@ -299,6 +351,16 @@ export const leaveRequestService = {
       requests[requestIndex].updated_at = new Date().toISOString();
       
       saveMockLeaveRequests(requests);
+      
+      // Add audit log
+      addAuditLog(
+        'comment',
+        leaveId,
+        'leave_request',
+        currentUser.id,
+        currentUser.name,
+        `Added comment to leave request for ${requests[requestIndex].user_name}`
+      );
       
       return newComment;
     }

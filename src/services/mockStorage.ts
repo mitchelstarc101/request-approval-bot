@@ -1,3 +1,4 @@
+
 // Mock Users Storage
 export const getMockUsers = () => {
   const users = localStorage.getItem('mock_users');
@@ -64,6 +65,16 @@ export const initializeMockData = () => {
     const nextWeekPlus3 = new Date();
     nextWeekPlus3.setDate(now.getDate() + 10);
     
+    // Additional dates for more realistic reports
+    const threeMonthsAgo = new Date();
+    threeMonthsAgo.setMonth(now.getMonth() - 3);
+    
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(now.getMonth() - 2);
+    
+    const oneMonthAgo = new Date();
+    oneMonthAgo.setMonth(now.getMonth() - 1);
+    
     const initialRequests = [
       {
         id: 'leave_1',
@@ -98,10 +109,114 @@ export const initializeMockData = () => {
         ],
         created_at: twoWeeksAgo.toISOString(),
         updated_at: twoWeeksAgo.toISOString()
+      },
+      // Additional leave requests for better data visualization
+      {
+        id: 'leave_3',
+        user_id: 'user_employee',
+        user_name: 'Employee User',
+        leave_type: 'personal',
+        start_date: threeMonthsAgo.toISOString(),
+        end_date: threeMonthsAgo.toISOString(),
+        reason: 'Personal matters',
+        status: 'approved',
+        comments: [],
+        created_at: threeMonthsAgo.toISOString(),
+        updated_at: threeMonthsAgo.toISOString()
+      },
+      {
+        id: 'leave_4',
+        user_id: 'user_employee',
+        user_name: 'Employee User',
+        leave_type: 'vacation',
+        start_date: twoMonthsAgo.toISOString(),
+        end_date: twoMonthsAgo.toISOString(),
+        reason: 'Weekend getaway',
+        status: 'rejected',
+        comments: [
+          {
+            id: 'comment_2',
+            user_id: 'user_admin',
+            user_name: 'Admin User',
+            text: 'Conflicting with project deadline',
+            created_at: twoMonthsAgo.toISOString()
+          }
+        ],
+        created_at: twoMonthsAgo.toISOString(),
+        updated_at: twoMonthsAgo.toISOString()
+      },
+      {
+        id: 'leave_5',
+        user_id: 'user_employee',
+        user_name: 'Employee User',
+        leave_type: 'sick',
+        start_date: oneMonthAgo.toISOString(),
+        end_date: oneMonthAgo.toISOString(),
+        reason: 'Flu',
+        status: 'approved',
+        comments: [],
+        created_at: oneMonthAgo.toISOString(),
+        updated_at: oneMonthAgo.toISOString()
       }
     ];
     
     saveMockLeaveRequests(initialRequests);
+    
+    // Also create some initial audit logs
+    const initialLogs = [
+      {
+        id: `log_${Date.now() - 5000}`,
+        action: 'approve',
+        targetId: 'leave_2',
+        targetType: 'leave_request',
+        userId: 'user_admin',
+        userName: 'Admin User',
+        details: 'Approved sick leave request for Employee User',
+        timestamp: twoWeeksAgo.toISOString()
+      },
+      {
+        id: `log_${Date.now() - 4000}`,
+        action: 'comment',
+        targetId: 'leave_2',
+        targetType: 'leave_request',
+        userId: 'user_admin',
+        userName: 'Admin User',
+        details: 'Added comment to leave request for Employee User',
+        timestamp: twoWeeksAgo.toISOString()
+      },
+      {
+        id: `log_${Date.now() - 3000}`,
+        action: 'approve',
+        targetId: 'leave_3',
+        targetType: 'leave_request',
+        userId: 'user_admin',
+        userName: 'Admin User',
+        details: 'Approved personal leave request for Employee User',
+        timestamp: threeMonthsAgo.toISOString()
+      },
+      {
+        id: `log_${Date.now() - 2000}`,
+        action: 'reject',
+        targetId: 'leave_4',
+        targetType: 'leave_request',
+        userId: 'user_admin',
+        userName: 'Admin User',
+        details: 'Rejected vacation leave request for Employee User',
+        timestamp: twoMonthsAgo.toISOString()
+      },
+      {
+        id: `log_${Date.now() - 1000}`,
+        action: 'approve',
+        targetId: 'leave_5',
+        targetType: 'leave_request',
+        userId: 'user_admin',
+        userName: 'Admin User',
+        details: 'Approved sick leave request for Employee User',
+        timestamp: oneMonthAgo.toISOString()
+      }
+    ];
+    
+    localStorage.setItem('mock_audit_logs', JSON.stringify(initialLogs));
   }
 };
 
