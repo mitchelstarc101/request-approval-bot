@@ -12,6 +12,7 @@ import Signup from "@/pages/Signup";
 import Dashboard from "@/pages/Dashboard";
 import LeaveRequests from "@/pages/LeaveRequests";
 import SettingsPage from "@/pages/SettingsPage";
+import AdminPortal from "@/pages/AdminPortal";
 import NotFound from "@/pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -88,7 +89,7 @@ const AppRoutes = () => {
         {/* Admin routes */}
         <Route path="admin/requests" element={
           <AdminRoute>
-            <LeaveRequests />
+            <AdminPortal />
           </AdminRoute>
         } />
         

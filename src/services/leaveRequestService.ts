@@ -1,19 +1,27 @@
-
 import api from "./apiClient";
 import { getMockLeaveRequests, saveMockLeaveRequests } from "./mockStorage";
 import { authService } from "./authService";
 
 export interface LeaveRequest {
-  id?: string;
+  id: string; // Changed from optional to required
   user_id?: string;
   user_name?: string;
   leave_type: string;
   start_date: string | Date;
   end_date: string | Date;
   reason?: string;
-  status?: string;
+  status: string; // Changed from optional to required
+  comments?: Comment[];
   created_at?: string;
   updated_at?: string;
+}
+
+export interface Comment {
+  id: string;
+  user_id: string;
+  user_name: string;
+  text: string;
+  created_at: string;
 }
 
 export const leaveRequestService = {
@@ -250,4 +258,51 @@ export const leaveRequestService = {
       return { success: true };
     }
   },
+  
+  addComment: async (leaveId: string, commentText: string) => {
+    try {
+      // First try the real API
+      const response = await api.post(`/leave/${leaveId}/comment`, { text: commentText });
+      return response.data;
+    } catch (error) {
+      console.log("Using mock comment addition instead");
+      
+      // Get current user
+      const currentUser = authService.getCurrentUser();
+      if (!currentUser) {
+        throw new Error("You must be logged in to add a comment");
+      }
+      
+      // Get requests
+      const requests = getMockLeaveRequests();
+      const requestIndex = requests.findIndex(req => req.id === leaveId);
+      
+      if (requestIndex === -1) {
+        throw new Error("Leave request not found");
+      }
+      
+      // Create new comment
+      const newComment = {
+        id: `comment_${Date.now()}`,
+        user_id: currentUser.id,
+        user_name: currentUser.name,
+        text: commentText,
+        created_at: new Date().toISOString()
+      };
+      
+      // Add comment to request
+      if (!requests[requestIndex].comments) {
+        requests[requestIndex].comments = [];
+      }
+      
+      requests[requestIndex].comments.push(newComment);
+      requests[requestIndex].updated_at = new Date().toISOString();
+      
+      saveMockLeaveRequests(requests);
+      
+      return newComment;
+    }
+  },
+  
+  // Add any additional methods you need here
 };
