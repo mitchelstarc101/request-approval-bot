@@ -6,10 +6,10 @@ import { Button } from "@/components/ui/button";
 interface CardActionsProps {
   status: string;
   isAdmin: boolean;
-  onEdit?: () => void;
-  onDelete?: () => void;
-  onApprove?: () => void;
-  onReject?: () => void;
+  onEdit?: (e: React.MouseEvent) => void;
+  onDelete?: (e: React.MouseEvent) => void;
+  onApprove?: (e: React.MouseEvent) => void;
+  onReject?: (e: React.MouseEvent) => void;
 }
 
 const CardActions: React.FC<CardActionsProps> = ({

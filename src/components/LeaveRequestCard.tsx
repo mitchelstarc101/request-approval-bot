@@ -27,6 +27,7 @@ interface LeaveRequestCardProps {
   onDelete?: () => void;
   onApprove?: () => void;
   onReject?: () => void;
+  onViewDetails?: () => void;
 }
 
 const LeaveRequestCard: React.FC<LeaveRequestCardProps> = ({
@@ -36,13 +37,17 @@ const LeaveRequestCard: React.FC<LeaveRequestCardProps> = ({
   onDelete,
   onApprove,
   onReject,
+  onViewDetails,
 }) => {
   const startDate = new Date(request.start_date);
   const endDate = new Date(request.end_date);
   const duration = calculateDuration(startDate, endDate);
   
   return (
-    <Card className="overflow-hidden shadow-sm hover:shadow-md transition-all animate-fadeIn">
+    <Card 
+      className="overflow-hidden shadow-sm hover:shadow-md transition-all animate-fadeIn cursor-pointer"
+      onClick={onViewDetails}
+    >
       <CardContent className="p-6">
         <div className="flex justify-between items-start mb-4">
           <div>
@@ -74,10 +79,10 @@ const LeaveRequestCard: React.FC<LeaveRequestCardProps> = ({
         <CardActions 
           status={request.status}
           isAdmin={isAdmin}
-          onEdit={onEdit}
-          onDelete={onDelete}
-          onApprove={onApprove}
-          onReject={onReject}
+          onEdit={onEdit ? (e) => { e.stopPropagation(); onEdit(); } : undefined}
+          onDelete={onDelete ? (e) => { e.stopPropagation(); onDelete(); } : undefined}
+          onApprove={onApprove ? (e) => { e.stopPropagation(); onApprove(); } : undefined}
+          onReject={onReject ? (e) => { e.stopPropagation(); onReject(); } : undefined}
         />
       </CardFooter>
     </Card>
