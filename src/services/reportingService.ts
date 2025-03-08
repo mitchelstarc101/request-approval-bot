@@ -1,6 +1,5 @@
-
 import { getMockLeaveRequests } from "./mockStorage";
-import { LeaveRequest } from "./leaveRequestService";
+import { LeaveRequest } from "./types/leaveTypes";
 
 // Types for reporting
 export interface LeaveReport {

@@ -4,7 +4,7 @@ import { format } from "date-fns";
 import { MessageSquare, Check, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { leaveRequestService, type Comment } from "@/services/leaveRequestService";
+import { leaveRequestService, type Comment } from "@/services";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";

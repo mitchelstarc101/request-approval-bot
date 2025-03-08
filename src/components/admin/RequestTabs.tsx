@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Clock, CheckCircle2, XCircle } from "lucide-react";
-import { LeaveRequest } from "@/services/leaveRequestService";
+import { LeaveRequest } from "@/services";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import LeaveRequestCard from "@/components/LeaveRequestCard";

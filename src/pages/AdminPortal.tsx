@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { leaveRequestService, type LeaveRequest } from "@/services/leaveRequestService";
+import { leaveRequestService, type LeaveRequest } from "@/services";
 import FilterPanel from "@/components/admin/FilterPanel";
 import RequestTabs from "@/components/admin/RequestTabs";
 import RequestDetailsDialog from "@/components/admin/RequestDetailsDialog";
@@ -31,7 +31,7 @@ const AdminPortal: React.FC = () => {
   });
   
   // Filter and search functionality
-  const filteredRequests = leaveRequests.filter((request: LeaveRequest) => {
+  const filteredRequests = (leaveRequests as LeaveRequest[]).filter((request: LeaveRequest) => {
     // Filter by status
     if (filter !== "all" && request.status !== filter) {
       return false;
@@ -75,7 +75,7 @@ const AdminPortal: React.FC = () => {
 
   // Handle approve button click
   const handleApprove = (id: string) => {
-    const request = leaveRequests.find(r => r.id === id) as AdminLeaveRequest;
+    const request = (leaveRequests as LeaveRequest[]).find(r => r.id === id) as AdminLeaveRequest;
     if (request) {
       setSelectedRequest(request);
       setIsDetailsOpen(true);
@@ -84,7 +84,7 @@ const AdminPortal: React.FC = () => {
   
   // Handle reject button click
   const handleReject = (id: string) => {
-    const request = leaveRequests.find(r => r.id === id) as AdminLeaveRequest;
+    const request = (leaveRequests as LeaveRequest[]).find(r => r.id === id) as AdminLeaveRequest;
     if (request) {
       setSelectedRequest(request);
       setIsDetailsOpen(true);
@@ -109,7 +109,7 @@ const AdminPortal: React.FC = () => {
       
       <RequestTabs
         isLoading={isLoading}
-        requests={leaveRequests}
+        requests={leaveRequests as LeaveRequest[]}
         filteredRequests={filteredRequests}
         onApprove={handleApprove}
         onReject={handleReject}
