@@ -19,6 +19,7 @@ interface LeaveRequestTableProps {
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onViewDetails: (request: LeaveRequest) => void;
+  showEmptyState?: boolean;
 }
 
 const LeaveRequestTable: React.FC<LeaveRequestTableProps> = ({
@@ -26,6 +27,7 @@ const LeaveRequestTable: React.FC<LeaveRequestTableProps> = ({
   onApprove,
   onReject,
   onViewDetails,
+  showEmptyState = true,
 }) => {
   return (
     <div className="rounded-md border">
@@ -42,11 +44,13 @@ const LeaveRequestTable: React.FC<LeaveRequestTableProps> = ({
         </TableHeader>
         <TableBody>
           {requests.length === 0 ? (
-            <TableRow>
-              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
-                No leave requests found
-              </TableCell>
-            </TableRow>
+            showEmptyState ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
+                  No leave requests found
+                </TableCell>
+              </TableRow>
+            ) : null
           ) : (
             requests.map((request) => (
               <TableRow 
