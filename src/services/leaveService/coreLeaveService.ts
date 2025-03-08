@@ -1,31 +1,11 @@
-import api from "./apiClient";
-import { getMockLeaveRequests, saveMockLeaveRequests } from "./mockStorage";
-import { authService } from "./authService";
-import { addAuditLog } from "./reportingService";
 
-export interface LeaveRequest {
-  id: string; // Changed from optional to required
-  user_id?: string;
-  user_name?: string;
-  leave_type: string;
-  start_date: string | Date;
-  end_date: string | Date;
-  reason?: string;
-  status: string; // Changed from optional to required
-  comments?: Comment[];
-  created_at?: string;
-  updated_at?: string;
-}
+import api from "../apiClient";
+import { getMockLeaveRequests, saveMockLeaveRequests } from "../mockStorage";
+import { authService } from "../authService";
+import { addAuditLog } from "../reportingService";
+import { LeaveRequest } from "../types/leaveTypes";
 
-export interface Comment {
-  id: string;
-  user_id: string;
-  user_name: string;
-  text: string;
-  created_at: string;
-}
-
-export const leaveRequestService = {
+export const coreLeaveService = {
   create: async (leaveData: LeaveRequest) => {
     try {
       // First try the real API
@@ -174,90 +154,6 @@ export const leaveRequestService = {
     }
   },
   
-  approve: async (id: string) => {
-    try {
-      // First try the real API
-      const response = await api.put(`/leave/approve/${id}`);
-      return response.data;
-    } catch (error) {
-      console.log("Using mock leave request approval instead");
-      
-      // Get current user to check if admin
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || currentUser.role !== "admin") {
-        throw new Error("Only administrators can approve leave requests");
-      }
-      
-      // Get and update the specific request
-      const requests = getMockLeaveRequests();
-      const requestIndex = requests.findIndex(req => req.id === id);
-      
-      if (requestIndex === -1) {
-        throw new Error("Leave request not found");
-      }
-      
-      // Update request status
-      requests[requestIndex].status = "approved";
-      requests[requestIndex].updated_at = new Date().toISOString();
-      
-      saveMockLeaveRequests(requests);
-      
-      // Add audit log
-      addAuditLog(
-        'approve',
-        id,
-        'leave_request',
-        currentUser.id,
-        currentUser.name,
-        `Approved leave request for ${requests[requestIndex].user_name}`
-      );
-      
-      return requests[requestIndex];
-    }
-  },
-  
-  reject: async (id: string) => {
-    try {
-      // First try the real API
-      const response = await api.put(`/leave/reject/${id}`);
-      return response.data;
-    } catch (error) {
-      console.log("Using mock leave request rejection instead");
-      
-      // Get current user to check if admin
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser || currentUser.role !== "admin") {
-        throw new Error("Only administrators can reject leave requests");
-      }
-      
-      // Get and update the specific request
-      const requests = getMockLeaveRequests();
-      const requestIndex = requests.findIndex(req => req.id === id);
-      
-      if (requestIndex === -1) {
-        throw new Error("Leave request not found");
-      }
-      
-      // Update request status
-      requests[requestIndex].status = "rejected";
-      requests[requestIndex].updated_at = new Date().toISOString();
-      
-      saveMockLeaveRequests(requests);
-      
-      // Add audit log
-      addAuditLog(
-        'reject',
-        id,
-        'leave_request',
-        currentUser.id,
-        currentUser.name,
-        `Rejected leave request for ${requests[requestIndex].user_name}`
-      );
-      
-      return requests[requestIndex];
-    }
-  },
-  
   delete: async (id: string) => {
     try {
       // First try the real API
@@ -309,62 +205,5 @@ export const leaveRequestService = {
       
       return { success: true };
     }
-  },
-  
-  addComment: async (leaveId: string, commentText: string) => {
-    try {
-      // First try the real API
-      const response = await api.post(`/leave/${leaveId}/comment`, { text: commentText });
-      return response.data;
-    } catch (error) {
-      console.log("Using mock comment addition instead");
-      
-      // Get current user
-      const currentUser = authService.getCurrentUser();
-      if (!currentUser) {
-        throw new Error("You must be logged in to add a comment");
-      }
-      
-      // Get requests
-      const requests = getMockLeaveRequests();
-      const requestIndex = requests.findIndex(req => req.id === leaveId);
-      
-      if (requestIndex === -1) {
-        throw new Error("Leave request not found");
-      }
-      
-      // Create new comment
-      const newComment = {
-        id: `comment_${Date.now()}`,
-        user_id: currentUser.id,
-        user_name: currentUser.name,
-        text: commentText,
-        created_at: new Date().toISOString()
-      };
-      
-      // Add comment to request
-      if (!requests[requestIndex].comments) {
-        requests[requestIndex].comments = [];
-      }
-      
-      requests[requestIndex].comments.push(newComment);
-      requests[requestIndex].updated_at = new Date().toISOString();
-      
-      saveMockLeaveRequests(requests);
-      
-      // Add audit log
-      addAuditLog(
-        'comment',
-        leaveId,
-        'leave_request',
-        currentUser.id,
-        currentUser.name,
-        `Added comment to leave request for ${requests[requestIndex].user_name}`
-      );
-      
-      return newComment;
-    }
-  },
-  
-  // Add any additional methods you need here
+  }
 };
