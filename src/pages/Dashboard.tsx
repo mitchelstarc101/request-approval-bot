@@ -1,22 +1,18 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import { leaveRequestService } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
-import StatsCard from "@/components/StatsCard";
-import LeaveRequestCard from "@/components/LeaveRequestCard";
-import LeaveRequestTable from "@/components/admin/LeaveRequestTable";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
-import LeaveRequestForm from "@/components/LeaveRequestForm";
-import { PlusCircle, Calendar, Clock, CheckCircle, XCircle, CircleAlert } from "lucide-react";
 import { toast } from "@/components/ui/use-toast";
+
+// Importing our newly created components
+import DashboardHeader from "@/components/dashboard/DashboardHeader";
+import StatsSection from "@/components/dashboard/StatsSection";
+import RecentRequestsSection from "@/components/dashboard/RecentRequestsSection";
+import LeaveRequestsSection from "@/components/dashboard/LeaveRequestsSection";
+import DashboardDialogs from "@/components/dashboard/DashboardDialogs";
 
 const Dashboard = () => {
   const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
   
   const [isLoading, setIsLoading] = useState(true);
   const [leaveRequests, setLeaveRequests] = useState([]);
@@ -98,6 +94,11 @@ const Dashboard = () => {
     }
   };
 
+  const openNewRequestDialog = () => {
+    setCurrentRequest(null);
+    setIsDialogOpen(true);
+  };
+
   const openEditDialog = (request: any) => {
     setCurrentRequest(request);
     setIsDialogOpen(true);
@@ -120,170 +121,39 @@ const Dashboard = () => {
 
   return (
     <div className="space-y-8 animate-fadeIn">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-semibold tracking-tight">Dashboard</h1>
-          <p className="text-muted-foreground mt-1">
-            Welcome back, {user?.name || "User"}
-          </p>
-        </div>
-        
-        <Button 
-          size="lg" 
-          className="flex items-center gap-2"
-          onClick={() => {
-            setCurrentRequest(null);
-            setIsDialogOpen(true);
-          }}
-        >
-          <PlusCircle size={18} />
-          New Leave Request
-        </Button>
-      </div>
+      <DashboardHeader 
+        userName={user?.name} 
+        onNewRequest={openNewRequestDialog} 
+      />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatsCard
-          title="Total Requests"
-          value={stats.total}
-          icon={<Calendar className="h-5 w-5 text-primary" />}
-          description="All leave requests"
-        />
-        
-        <StatsCard
-          title="Pending"
-          value={stats.pending}
-          icon={<Clock className="h-5 w-5 text-yellow-500" />}
-          description="Awaiting approval"
-        />
-        
-        <StatsCard
-          title="Approved"
-          value={stats.approved}
-          icon={<CheckCircle className="h-5 w-5 text-green-500" />}
-          description="Approved requests"
-        />
-        
-        <StatsCard
-          title="Rejected"
-          value={stats.rejected}
-          icon={<XCircle className="h-5 w-5 text-red-500" />}
-          description="Declined requests"
-        />
-      </div>
+      <StatsSection stats={stats} />
 
-      {/* Recent Requests Section */}
-      <Card className="mb-8">
-        <CardHeader className="pb-3">
-          <CardTitle>Recent Requests</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {isLoading ? (
-            <div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div>
-          ) : recentRequests.length > 0 ? (
-            <LeaveRequestTable 
-              requests={recentRequests}
-              onApprove={() => {}}
-              onReject={() => {}}
-              onViewDetails={viewRequestDetails}
-              showEmptyState={false}
-            />
-          ) : (
-            <div className="flex flex-col items-center justify-center py-8 bg-muted/30 rounded-lg">
-              <CircleAlert className="h-8 w-8 text-muted-foreground mb-3" />
-              <p className="text-muted-foreground">No recent leave requests found</p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <RecentRequestsSection 
+        isLoading={isLoading}
+        recentRequests={recentRequests}
+        onViewDetails={viewRequestDetails}
+      />
 
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Leave Requests</h2>
-          
-          <Button 
-            variant="outline" 
-            onClick={() => navigate("/requests")}
-          >
-            View All
-          </Button>
-        </div>
+      <LeaveRequestsSection 
+        isLoading={isLoading}
+        leaveRequests={leaveRequests}
+        onEdit={openEditDialog}
+        onDelete={openDeleteDialog}
+        onCreateRequest={openNewRequestDialog}
+      />
 
-        {isLoading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {[...Array(2)].map((_, index) => (
-              <div key={index} className="h-64 bg-muted/50 rounded-lg animate-pulse"></div>
-            ))}
-          </div>
-        ) : leaveRequests.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {leaveRequests.slice(0, 4).map((request: any) => (
-              <LeaveRequestCard
-                key={request.id}
-                request={request}
-                onEdit={
-                  request.status === "pending" ? () => openEditDialog(request) : undefined
-                }
-                onDelete={
-                  request.status === "pending" ? () => openDeleteDialog(request) : undefined
-                }
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center py-12 border rounded-lg bg-muted/30">
-            <CircleAlert className="h-10 w-10 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium">No leave requests found</h3>
-            <p className="text-muted-foreground mt-1">
-              You haven't created any leave requests yet.
-            </p>
-            <Button className="mt-4" onClick={() => setIsDialogOpen(true)}>
-              Create Your First Request
-            </Button>
-          </div>
-        )}
-      </div>
-
-      {/* Create/Edit Request Dialog */}
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>
-              {currentRequest ? "Edit Leave Request" : "New Leave Request"}
-            </DialogTitle>
-          </DialogHeader>
-          
-          <LeaveRequestForm
-            initialData={currentRequest}
-            onSubmit={currentRequest ? handleEditRequest : handleCreateRequest}
-            isEditing={!!currentRequest}
-          />
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Confirmation Dialog */}
-      <AlertDialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-            <AlertDialogDescription>
-              This action cannot be undone. This will permanently delete your
-              leave request.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={handleDeleteRequest}
-              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-              Delete
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
+      <DashboardDialogs 
+        isDialogOpen={isDialogOpen}
+        setIsDialogOpen={setIsDialogOpen}
+        isDeleteDialogOpen={isDeleteDialogOpen}
+        setIsDeleteDialogOpen={setIsDeleteDialogOpen}
+        currentRequest={currentRequest}
+        onEdit={handleEditRequest}
+        onCreate={handleCreateRequest}
+        onDelete={handleDeleteRequest}
+      />
     </div>
   );
 };
 
 export default Dashboard;
-
