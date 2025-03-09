@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { leaveRequestService } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "@/components/ui/use-toast";
+import { toast } from "@/hooks/use-toast";
 
 // Importing our newly created components
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
@@ -19,6 +19,7 @@ const Dashboard = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [currentRequest, setCurrentRequest] = useState<any>(null);
+  const [isViewDetailsDialogOpen, setIsViewDetailsDialogOpen] = useState(false);
   const [stats, setStats] = useState({
     pending: 0,
     approved: 0,
@@ -111,7 +112,7 @@ const Dashboard = () => {
 
   const viewRequestDetails = (request: any) => {
     setCurrentRequest(request);
-    // If an admin view is needed, it would be added here
+    // The modal is now handled in the RecentRequestsSection component
   };
 
   // Get recent requests (last 5)
