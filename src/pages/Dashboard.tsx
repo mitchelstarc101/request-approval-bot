@@ -5,8 +5,10 @@ import { leaveRequestService } from "@/services";
 import { useAuth } from "@/contexts/AuthContext";
 import StatsCard from "@/components/StatsCard";
 import LeaveRequestCard from "@/components/LeaveRequestCard";
+import LeaveRequestTable from "@/components/admin/LeaveRequestTable";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import LeaveRequestForm from "@/components/LeaveRequestForm";
 import { PlusCircle, Calendar, Clock, CheckCircle, XCircle, CircleAlert } from "lucide-react";
@@ -106,6 +108,16 @@ const Dashboard = () => {
     setIsDeleteDialogOpen(true);
   };
 
+  const viewRequestDetails = (request: any) => {
+    setCurrentRequest(request);
+    // If an admin view is needed, it would be added here
+  };
+
+  // Get recent requests (last 5)
+  const recentRequests = [...leaveRequests]
+    .sort((a: any, b: any) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
+    .slice(0, 5);
+
   return (
     <div className="space-y-8 animate-fadeIn">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -159,9 +171,34 @@ const Dashboard = () => {
         />
       </div>
 
+      {/* Recent Requests Section */}
+      <Card className="mb-8">
+        <CardHeader className="pb-3">
+          <CardTitle>Recent Requests</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {isLoading ? (
+            <div className="h-48 bg-muted/50 rounded-lg animate-pulse"></div>
+          ) : recentRequests.length > 0 ? (
+            <LeaveRequestTable 
+              requests={recentRequests}
+              onApprove={() => {}}
+              onReject={() => {}}
+              onViewDetails={viewRequestDetails}
+              showEmptyState={false}
+            />
+          ) : (
+            <div className="flex flex-col items-center justify-center py-8 bg-muted/30 rounded-lg">
+              <CircleAlert className="h-8 w-8 text-muted-foreground mb-3" />
+              <p className="text-muted-foreground">No recent leave requests found</p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-semibold">Recent Leave Requests</h2>
+          <h2 className="text-xl font-semibold">Leave Requests</h2>
           
           <Button 
             variant="outline" 
@@ -249,3 +286,4 @@ const Dashboard = () => {
 };
 
 export default Dashboard;
+

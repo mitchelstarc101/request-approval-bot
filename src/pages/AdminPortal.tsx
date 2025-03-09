@@ -5,7 +5,6 @@ import { leaveRequestService, type LeaveRequest } from "@/services";
 import FilterPanel from "@/components/admin/FilterPanel";
 import RequestTabs from "@/components/admin/RequestTabs";
 import RequestDetailsDialog from "@/components/admin/RequestDetailsDialog";
-import LeaveRequestTable from "@/components/admin/LeaveRequestTable";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
 // Define the request with mandatory fields for the Admin Portal
@@ -61,11 +60,6 @@ const AdminPortal: React.FC = () => {
     return true;
   });
   
-  // Get recent requests (last 5)
-  const recentRequests = [...(leaveRequests as LeaveRequest[])]
-    .sort((a, b) => new Date(b.created_at || '').getTime() - new Date(a.created_at || '').getTime())
-    .slice(0, 5);
-  
   // View request details
   const viewRequestDetails = (request: AdminLeaveRequest) => {
     setSelectedRequest(request);
@@ -102,22 +96,6 @@ const AdminPortal: React.FC = () => {
     <div className="container mx-auto p-6 max-w-7xl">
       <h1 className="text-3xl font-bold tracking-tight mb-8">Admin Leave Request Portal</h1>
       
-      {/* Recent Requests Section */}
-      <Card className="mb-8">
-        <CardHeader className="pb-3">
-          <CardTitle>Recent Requests</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <LeaveRequestTable 
-            requests={recentRequests}
-            onApprove={handleApprove}
-            onReject={handleReject}
-            onViewDetails={viewRequestDetails}
-            showEmptyState={false}
-          />
-        </CardContent>
-      </Card>
-      
       <FilterPanel
         filter={filter}
         setFilter={setFilter}
@@ -149,3 +127,4 @@ const AdminPortal: React.FC = () => {
 };
 
 export default AdminPortal;
+
