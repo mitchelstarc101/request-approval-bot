@@ -55,7 +55,7 @@ const ForgotPasswordForm = ({ onBackToLogin }: { onBackToLogin: () => void }) =>
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-secondary/50">
+    <div className="min-h-screen flex items-center justify-center p-4" style={{ backgroundColor: "#000000b3" }}>
       <div className="w-full max-w-md glass-morphism rounded-2xl shadow-xl overflow-hidden animate-fadeIn">
         <div className="p-8">
           <button
