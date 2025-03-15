@@ -15,7 +15,15 @@ import SettingsPage from "@/pages/SettingsPage";
 import AdminPortal from "@/pages/AdminPortal";
 import NotFound from "@/pages/NotFound";
 
-const queryClient = new QueryClient();
+// Create a new QueryClient instance
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 1,
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 
 // Protected route component
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
