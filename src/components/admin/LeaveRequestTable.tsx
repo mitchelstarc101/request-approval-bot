@@ -34,7 +34,7 @@ const LeaveRequestTable: React.FC<LeaveRequestTableProps> = ({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Username</TableHead>
+            <TableHead>Name</TableHead>
             <TableHead>Type</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>From Date</TableHead>
