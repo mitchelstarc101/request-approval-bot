@@ -1,11 +1,27 @@
-
 import api from "../apiClient";
 import { getMockLeaveRequests, saveMockLeaveRequests } from "../mockStorage";
 import { authService } from "../authService";
 import { addAuditLog } from "../reportingService";
 import { LeaveRequest } from "../types/leaveTypes";
+import { calculateDuration } from "../../components/leave-request/utils";
 
 export const coreLeaveService = {
+  validateLeaveDuration: (type: string, startDate: Date, endDate: Date, isAdmin: boolean = false): boolean => {
+    if (isAdmin) return true;
+    
+    const duration = calculateDuration(startDate, endDate);
+    
+    if (type === "personal" && duration > 12) {
+      throw new Error("Personal leave cannot exceed 12 days");
+    }
+    
+    if (type === "sick" && duration > 6) {
+      throw new Error("Sick leave cannot exceed 6 days");
+    }
+    
+    return true;
+  },
+
   create: async (leaveData: LeaveRequest) => {
     try {
       // First try the real API
@@ -19,6 +35,14 @@ export const coreLeaveService = {
       if (!currentUser) {
         throw new Error("You must be logged in to create a leave request");
       }
+      
+      // Validate leave duration (skip for admins)
+      coreLeaveService.validateLeaveDuration(
+        leaveData.leave_type,
+        new Date(leaveData.start_date),
+        new Date(leaveData.end_date),
+        currentUser.role === "admin"
+      );
       
       // Get existing requests
       const requests = getMockLeaveRequests();
@@ -106,6 +130,14 @@ export const coreLeaveService = {
       if (!currentUser) {
         throw new Error("You must be logged in to update a leave request");
       }
+      
+      // Validate leave duration (skip for admins)
+      coreLeaveService.validateLeaveDuration(
+        leaveData.leave_type,
+        new Date(leaveData.start_date),
+        new Date(leaveData.end_date),
+        currentUser.role === "admin"
+      );
       
       // Get and update the specific request
       const requests = getMockLeaveRequests();

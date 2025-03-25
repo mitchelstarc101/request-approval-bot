@@ -1,12 +1,14 @@
 
 import React, { useState } from "react";
 import { toast } from "@/components/ui/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 import { 
   LeaveTypeSelect, 
   DateRangePicker, 
   ReasonField, 
   SubmitButton 
 } from "./leave-request-form";
+import { calculateDuration } from "./leave-request/utils";
 
 interface LeaveRequestFormProps {
   initialData?: {
@@ -18,13 +20,16 @@ interface LeaveRequestFormProps {
   };
   onSubmit: (data: any) => Promise<void>;
   isEditing?: boolean;
+  adminOverride?: boolean;
 }
 
 const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({ 
   initialData, 
   onSubmit, 
-  isEditing = false 
+  isEditing = false,
+  adminOverride = false
 }) => {
+  const { isAdmin } = useAuth();
   const [formData, setFormData] = useState({
     leave_type: initialData?.leave_type || "vacation",
     start_date: initialData?.start_date ? new Date(initialData.start_date) : new Date(),
@@ -58,6 +63,33 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
     setFormData((prev) => ({ ...prev, reason: e.target.value }));
   };
 
+  const validateLeaveDuration = (type: string, startDate: Date, endDate: Date): boolean => {
+    // Admins can bypass validation or if explicitly passed adminOverride
+    if (isAdmin || adminOverride) return true;
+    
+    const duration = calculateDuration(startDate, endDate);
+    
+    if (type === "personal" && duration > 12) {
+      toast({
+        title: "Duration exceeds limit",
+        description: "Personal leave cannot exceed 12 days. Please adjust your dates or contact an administrator.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    if (type === "sick" && duration > 6) {
+      toast({
+        title: "Duration exceeds limit",
+        description: "Sick leave cannot exceed 6 days. Please adjust your dates or contact an administrator.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    
+    return true;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -68,6 +100,11 @@ const LeaveRequestForm: React.FC<LeaveRequestFormProps> = ({
         description: "End date cannot be before start date.",
         variant: "destructive",
       });
+      return;
+    }
+
+    // Validate leave duration based on type
+    if (!validateLeaveDuration(formData.leave_type, formData.start_date, formData.end_date)) {
       return;
     }
 

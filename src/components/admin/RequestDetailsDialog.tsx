@@ -1,16 +1,11 @@
-
 import React, { useState } from "react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/hooks/use-toast";
 import { leaveRequestService, type Comment } from "@/services";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-
-// Import refactored components
-import RequestInfo from "./request-details/RequestInfo";
-import CommentsSection from "./request-details/CommentsSection";
-import AddCommentForm from "./request-details/AddCommentForm";
-import ActionButtons from "./request-details/ActionButtons";
+import { useAuth } from "@/hooks/use-auth";
+import { calculateDuration } from "@/utils";
 
 interface RequestDetailsDialogProps {
   request: {
@@ -39,13 +34,12 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
   const [commentText, setCommentText] = useState("");
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { isAdmin } = useAuth();
 
-  // Approve leave request mutation
   const approveMutation = useMutation({
     mutationFn: (id: string) => leaveRequestService.approve(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminLeaveRequests"] });
-      // Also invalidate the reports and audit logs queries
       queryClient.invalidateQueries({ queryKey: ["leaveReport"] });
       queryClient.invalidateQueries({ queryKey: ["auditLogs"] });
       
@@ -63,13 +57,11 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
       });
     },
   });
-  
-  // Reject leave request mutation
+
   const rejectMutation = useMutation({
     mutationFn: (id: string) => leaveRequestService.reject(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminLeaveRequests"] });
-      // Also invalidate the reports and audit logs queries
       queryClient.invalidateQueries({ queryKey: ["leaveReport"] });
       queryClient.invalidateQueries({ queryKey: ["auditLogs"] });
       
@@ -87,14 +79,12 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
       });
     },
   });
-  
-  // Add comment mutation
+
   const commentMutation = useMutation({
     mutationFn: ({ leaveId, text }: { leaveId: string; text: string }) => 
       leaveRequestService.addComment(leaveId, text),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["adminLeaveRequests"] });
-      // Also invalidate the audit logs query
       queryClient.invalidateQueries({ queryKey: ["auditLogs"] });
       
       setCommentText("");
@@ -112,21 +102,18 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
     },
   });
 
-  // Handle approve button click
   const handleApprove = () => {
     if (request) {
       approveMutation.mutate(request.id);
     }
   };
-  
-  // Handle reject button click
+
   const handleReject = () => {
     if (request) {
       rejectMutation.mutate(request.id);
     }
   };
-  
-  // Handle comment submission
+
   const handleCommentSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!request || !commentText.trim()) return;
@@ -137,6 +124,27 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
     });
   };
 
+  const renderAdminOverride = () => {
+    if (!isAdmin || !request) return null;
+    
+    const duration = calculateDuration(new Date(request.start_date), new Date(request.end_date));
+    const isOverLimit = 
+      (request.leave_type === "personal" && duration > 12) ||
+      (request.leave_type === "sick" && duration > 6);
+    
+    if (isOverLimit) {
+      return (
+        <div className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <p className="text-sm text-yellow-800">
+            This request exceeds standard leave limits. As an admin, you can override these limits.
+          </p>
+        </div>
+      );
+    }
+    
+    return null;
+  };
+
   if (!request) return null;
 
   return (
@@ -145,6 +153,8 @@ const RequestDetailsDialog: React.FC<RequestDetailsDialogProps> = ({
         <DialogHeader className="pb-2">
           <DialogTitle className="text-base">Leave Request Details</DialogTitle>
         </DialogHeader>
+        
+        {renderAdminOverride()}
         
         <RequestInfo request={request} />
         
