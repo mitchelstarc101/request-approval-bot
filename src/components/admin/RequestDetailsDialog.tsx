@@ -6,6 +6,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/hooks/use-auth";
 import { calculateDuration } from "@/utils";
+import RequestInfo from "./request-details/RequestInfo";
+import CommentsSection from "./request-details/CommentsSection";
+import AddCommentForm from "./request-details/AddCommentForm";
+import ActionButtons from "./request-details/ActionButtons";
 
 interface RequestDetailsDialogProps {
   request: {
